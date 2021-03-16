@@ -1,4 +1,4 @@
-FROM maven:3.6-jdk-11
+FROM maven:3.6-jdk-11 AS build
 ENV MAXWELL_VERSION=1.31.0 KAFKA_VERSION=1.0.0
 
 RUN apt-get update \
@@ -17,6 +17,12 @@ RUN cd /workspace \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/* /workspace/ /root/.m2/ \
     && echo "$MAXWELL_VERSION" > /REVISION
+
+
+FROM openjdk:11-jre-slim
+ENV MAXWELL_VERSION=1.31.0 KAFKA_VERSION=1.0.0
+COPY --from=build /app /app
+RUN echo "$MAXWELL_VERSION" > /REVISION
 
 WORKDIR /app
 
